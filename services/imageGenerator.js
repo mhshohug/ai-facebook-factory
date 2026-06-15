@@ -1,110 +1,130 @@
 const axios = require("axios");
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 const logger = require("./logger");
+
+const API_KEY = process.env.HUGGINGFACE_API_KEY;
+
+const MODEL =
+    "stabilityai/stable-diffusion-xl-base-1.0";
 
 class ImageGenerator {
 
     constructor() {
-        this.apiKey = process.env.HUGGINGFACE_API_KEY;
-        this.model = "stabilityai/stable-diffusion-xl-base-1.0";
+
+        this.outputDir = path.join(
+            __dirname,
+            "..",
+            "output",
+            "images"
+        );
+
+        fs.ensureDirSync(this.outputDir);
+
     }
 
-    async generate(prompt, fileName) {
+    async generateImage(prompt, index) {
 
         try {
 
-            const response = await axios({
+            logger.info(`Generating Image ${index + 1}`);
 
-                method: "POST",
+            const response = await axios.post(
 
-                url: `https://api-inference.huggingface.co/models/${this.model}`,
+                `https://api-inference.huggingface.co/models/${MODEL}`,
 
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`
-                },
-
-                data: {
+                {
                     inputs: prompt
                 },
 
-                responseType: "arraybuffer"
+                {
+                    headers: {
+                        Authorization: `Bearer ${API_KEY}`,
+                        "Content-Type": "application/json",
+                        Accept: "image/png"
+                    },
+                    responseType: "arraybuffer",
+                    timeout: 300000
+                }
 
-            });
+            );
 
-            const dir = path.join(__dirname, "../output/images");
+            const fileName = `scene_${index + 1}.png`;
 
-            if (!fs.existsSync(dir))
-                fs.mkdirSync(dir, { recursive: true });
+            const filePath = path.join(
+                this.outputDir,
+                fileName
+            );
 
-            const output = path.join(dir, fileName);
+            await fs.writeFile(filePath, response.data);
 
-            fs.writeFileSync(output, response.data);
+            logger.info(`Saved ${fileName}`);
 
-            logger.info(`${fileName} Created`);
-
-            return output;
+            return {
+                success: true,
+                file: filePath
+            };
 
         } catch (err) {
 
-            logger.error(err.message);
+            logger.error(err.response?.data || err.message);
 
-            return null;
+            return {
+                success: false,
+                error: err.response?.data?.error || err.message
+            };
 
         }
 
     }
 
-    async generateAll(sceneText) {
+    async generateAll(scenes) {
 
         try {
 
-            let scenes;
+            if (!Array.isArray(scenes)) {
 
-            if (typeof sceneText === "string") {
-
-                scenes = JSON.parse(sceneText);
-
-            } else {
-
-                scenes = sceneText;
+                return {
+                    success: false,
+                    error: "Scenes must be an array"
+                };
 
             }
 
-            let files = [];
+            const files = [];
 
             for (let i = 0; i < scenes.length; i++) {
 
-                const file = await this.generate(
+                const prompt =
+                    scenes[i].prompt ||
+                    scenes[i].description ||
+                    scenes[i];
 
-                    scenes[i].prompt,
+                const image =
+                    await this.generateImage(prompt, i);
 
-                    `scene_${String(i + 1).padStart(2, "0")}.png`
+                if (!image.success) {
 
-                );
+                    return image;
 
-                files.push(file);
+                }
+
+                files.push(image.file);
 
             }
 
             return {
-
                 success: true,
-
                 files
-
             };
 
         } catch (err) {
 
-            logger.error(err.message);
+            logger.error(err);
 
             return {
-
                 success: false,
-
                 error: err.message
-
             };
 
         }

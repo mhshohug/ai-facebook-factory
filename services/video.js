@@ -3,6 +3,7 @@ const image = require("./image");
 const imageGenerator = require("./imageGenerator");
 const subtitle = require("./subtitle");
 const voice = require("./voice");
+const ffmpeg = require("./ffmpeg");
 const logger = require("./logger");
 
 class VideoService {
@@ -54,7 +55,18 @@ class VideoService {
                 return voiceFile;
             }
 
-            logger.info("AI Video Assets Created Successfully");
+            // 6. Render Final Video
+            const video = await ffmpeg.render(
+                images.files,
+                voiceFile.file,
+                subtitleFile.file
+            );
+
+            if (!video.success) {
+                return video;
+            }
+
+            logger.info("AI Video Created Successfully");
 
             return {
 
@@ -72,7 +84,9 @@ class VideoService {
 
                 voice: voiceFile.file,
 
-                status: "READY_FOR_VIDEO_RENDER"
+                video: video.file,
+
+                status: "COMPLETED"
 
             };
 

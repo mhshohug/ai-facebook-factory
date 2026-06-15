@@ -1,11 +1,19 @@
+require("dotenv").config();
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const logger = require("./logger");
 
 class GeminiService {
 
     constructor() {
-        this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        this.model = this.genAI.getGenerativeModel({
-            model: "gemini-2.5-flash"
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error("GEMINI_API_KEY not found in .env");
+        }
+
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+        this.model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash"
         });
     }
 
@@ -14,17 +22,25 @@ class GeminiService {
         try {
 
             const prompt = `
-তুমি একজন পেশাদার বাংলা ভিডিও স্ক্রিপ্ট রাইটার।
+তুমি একজন Professional Facebook Video Script Writer।
 
-বিষয়: ${topic}
+বিষয়:
+${topic}
 
-একটি ১-২ মিনিটের ভিডিওর জন্য আকর্ষণীয় বাংলা স্ক্রিপ্ট লিখো।
-শুধু স্ক্রিপ্ট দাও, অন্য কিছু নয়।
+নিয়ম:
+- বাংলা ভাষায় লিখবে।
+- ১-২ মিনিটের ভিডিওর জন্য হবে।
+- আকর্ষণীয় শুরু থাকবে।
+- পরিষ্কার ও সহজ ভাষা ব্যবহার করবে।
+- শুধুমাত্র স্ক্রিপ্ট দেবে।
+- কোনো Markdown বা Bullet Point ব্যবহার করবে না।
 `;
 
             const result = await this.model.generateContent(prompt);
 
-            const text = result.response.text();
+            const response = await result.response;
+
+            const text = response.text();
 
             return {
                 success: true,
@@ -32,6 +48,8 @@ class GeminiService {
             };
 
         } catch (err) {
+
+            logger.error(err.message);
 
             return {
                 success: false,

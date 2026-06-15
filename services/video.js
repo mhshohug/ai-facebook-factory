@@ -56,15 +56,15 @@ class VideoService {
             }
 
             // 6. Render Final Video
-            const video = await ffmpeg.render(
-                images.files,
-                voiceFile.file,
-                subtitleFile.file
-            );
+            //const video = await ffmpeg.render(
+               // images.files,
+               // voiceFile.file,
+               // subtitleFile.file
+          //  );
 
-            if (!video.success) {
-                return video;
-            }
+           // if (!video.success) {
+              //  return video;
+  // }
 
             logger.info("AI Video Created Successfully");
 
@@ -84,9 +84,9 @@ class VideoService {
 
                 voice: voiceFile.file,
 
-                video: video.file,
+            
 
-                status: "COMPLETED"
+                status: "ASSETS_CREATED"
 
             };
 

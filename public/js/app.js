@@ -1,5 +1,7 @@
 async function generate() {
 
+    alert("1. Generate function called");
+
     const topic = document.getElementById("topic").value.trim();
 
     if (!topic) {
@@ -15,6 +17,8 @@ async function generate() {
 
     try {
 
+        alert("2. Before Fetch");
+
         const res = await fetch("/api/automation/run", {
             method: "POST",
             headers: {
@@ -25,7 +29,12 @@ async function generate() {
             })
         });
 
+        alert("3. After Fetch");
+        alert("Status: " + res.status);
+
         const data = await res.json();
+
+        alert("4. Response Received");
 
         if (data.success) {
             status.innerHTML = "✅ সফলভাবে সম্পন্ন হয়েছে";
@@ -37,7 +46,10 @@ async function generate() {
 
     } catch (err) {
 
+        alert("ERROR: " + err.message);
+
         status.innerHTML = "❌ Server Error";
+
         result.innerText = err.message;
 
     }
@@ -68,22 +80,3 @@ async function checkServer() {
 window.generate = generate;
 
 checkServer();
-alert("1");
-
-const res = await fetch("/api/automation/run", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ topic })
-});
-
-alert("2");
-
-const data = await res.json();
-
-alert("3");
-
-console.log(data);
-
-alert("4");

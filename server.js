@@ -1,43 +1,39 @@
-const scheduler = require("./services/scheduler");
-const logger = require("./services/logger");
 require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const path = require("path");
+
+const scheduler = require("./services/scheduler");
+const logger = require("./services/logger");
+
+const indexRoute = require("./routes/index");
+const healthRoute = require("./routes/health");
+const apiRoute = require("./routes/api");
 
 const app = express();
 
 // Middlewares
-app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
+app.use(express.static("public"));
 
-// Home Route
-app.get("/", (req, res) => {
-    res.status(200).json({
-        success: true,
-        project: "AI Facebook Factory",
-        version: "1.0.0",
-        status: "Running 🚀",
-        developer: "Mh Shohug"
-    });
+// Routes
+app.use("/", indexRoute);
+app.use("/health", healthRoute);
+app.use("/api", apiRoute);
+
+// Dashboard
+app.get("/dashboard", (req, res) => {
+    res.sendFile(path.join(__dirname, "dashboard", "index.html"));
 });
 
-// Health Check
-app.get("/health", (req, res) => {
-    res.status(200).json({
-        success: true,
-        uptime: process.uptime(),
-        timestamp: new Date(),
-        environment: process.env.NODE_ENV || "development"
-    });
-});
-
-// 404 Handler
+// 404
 app.use((req, res) => {
     res.status(404).json({
         success: false,
@@ -46,17 +42,13 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
 
     logger.info(`AI Facebook Factory Started on Port ${PORT}`);
 
     scheduler.start();
-const healthRoute = require("./routes/health");
 
-app.use("/health", healthRoute);
+    console.log(`🚀 Server running on port ${PORT}`);
 
-const apiRoute = require("./routes/api");
-    console.log(`🚀 AI Facebook Factory running on port ${PORT}`);
-app.use("/api", apiRoute);
-const logger = require("./services/logger");
 });

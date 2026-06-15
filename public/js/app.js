@@ -1,41 +1,74 @@
-async function generate(){
+async function generate() {
 
-const topic=document.getElementById("topic").value;
+    const topic = document.getElementById("topic").value.trim();
 
-const res=await fetch("/api/automation/run",{
+    if (!topic) {
+        alert("অনুগ্রহ করে একটি টপিক লিখুন");
+        return;
+    }
 
-method:"POST",
+    const result = document.getElementById("result");
+    const status = document.getElementById("status");
 
-headers:{
+    status.innerHTML = "⏳ AI ভিডিও তৈরি হচ্ছে...";
+    result.innerText = "";
 
-"Content-Type":"application/json"
+    try {
 
-},
+        const res = await fetch("/api/automation/run", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                topic
+            })
+        });
 
-body:JSON.stringify({
+        const data = await res.json();
 
-topic
+        if (data.success) {
 
-})
+            status.innerHTML = "✅ সফলভাবে সম্পন্ন হয়েছে";
 
-});
+        } else {
 
-const data=await res.json();
+            status.innerHTML = "❌ ব্যর্থ হয়েছে";
 
-document.getElementById("result").innerText=
+        }
 
-JSON.stringify(data,null,2);
+        result.innerText = JSON.stringify(data, null, 2);
+
+    } catch (err) {
+
+        status.innerHTML = "❌ Server Error";
+
+        result.innerText = err.message;
+
+    }
 
 }
 
-fetch("/health")
+// Server Status Check
+async function checkServer() {
 
-.then(r=>r.json())
+    try {
 
-.then(d=>{
+        const res = await fetch("/health");
+        const data = await res.json();
 
-document.getElementById("status").innerHTML=
+        if (data.success) {
+            document.getElementById("status").innerHTML = "🟢 Server Online";
+        } else {
+            document.getElementById("status").innerHTML = "🔴 Server Offline";
+        }
 
-"🟢 Server Online";
+    } catch (err) {
 
-});
+        document.getElementById("status").innerHTML = "🔴 Server Offline";
+
+    }
+
+}
+
+checkServer();

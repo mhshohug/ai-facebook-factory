@@ -48,3 +48,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 AI Facebook Factory running on port ${PORT}`);
 });
+const healthRoute = require("./routes/health");
+
+app.use("/health", healthRoute);

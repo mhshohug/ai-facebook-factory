@@ -1,3 +1,4 @@
+const facebook = require("../services/facebook");
 const express = require("express");
 
 const router = express.Router();
@@ -35,3 +36,19 @@ router.get("/test", (req, res) => {
 });
 
 module.exports = router;
+router.get("/facebook/health", async (req, res) => {
+
+    const result = await facebook.health();
+
+    res.json(result);
+
+});
+router.get("/facebook/post", async (req, res) => {
+
+    const result = await facebook.postText(
+        "🤖 AI Facebook Factory Test Post"
+    );
+
+    res.json(result);
+
+});

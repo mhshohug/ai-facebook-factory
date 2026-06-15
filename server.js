@@ -1,3 +1,4 @@
+const scheduler = require("./services/scheduler");
 const logger = require("./services/logger");
 require("dotenv").config();
 const express = require("express");

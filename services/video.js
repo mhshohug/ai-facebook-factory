@@ -13,7 +13,13 @@ class VideoService {
             // ১. স্ক্রিপ্ট তৈরি
             const script = await gemini.generateScript(topic);
 
-            if (!script.success) {
+            if (!script.success) 
+            const scenes = await image.generateScenes(script.text);
+
+if (!scenes.success) {
+    return scenes;
+}
+            {
                 return script;
             }
 
@@ -23,12 +29,13 @@ class VideoService {
 
             // ৪. ভবিষ্যতে এখানে FFmpeg ভিডিও বানাবে
 
-            return {
-                success: true,
-                topic,
-                script: script.text,
-                status: "SCRIPT_CREATED"
-            };
+          return {
+    success: true,
+    topic,
+    script: script.text,
+    scenes: scenes.scenes,
+    status: "SCENES_CREATED"
+};
 
         } catch (err) {
 

@@ -83,3 +83,9 @@ async function checkServer() {
 }
 
 checkServer();
+window.testGenerate = function () {
+    alert("testGenerate called");
+    generate();
+};
+
+window.generate = generate;

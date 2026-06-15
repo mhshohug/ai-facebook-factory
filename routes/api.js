@@ -1,3 +1,7 @@
+const automation = require("../controllers/automationController");
+router.post("/automation/script", automation.generateScript);
+
+router.post("/automation/run", automation.run);
 const facebook = require("../services/facebook");
 const express = require("express");
 

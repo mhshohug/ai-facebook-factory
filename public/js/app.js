@@ -68,3 +68,22 @@ async function checkServer() {
 window.generate = generate;
 
 checkServer();
+alert("1");
+
+const res = await fetch("/api/automation/run", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ topic })
+});
+
+alert("2");
+
+const data = await res.json();
+
+alert("3");
+
+console.log(data);
+
+alert("4");

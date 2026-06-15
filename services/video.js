@@ -1,3 +1,4 @@
+const image = require("./image");
 const logger = require("./logger");
 const gemini = require("./gemini");
 

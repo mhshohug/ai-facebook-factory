@@ -29,33 +29,14 @@ class AutomationController {
 
     }
 
-    // ভবিষ্যতে এখানেই Video + Facebook Post হবে
+    // টেস্ট Route
     async run(req, res) {
 
-        try {
-
-            const topic = req.body.topic || "বাংলাদেশ";
-
-            const result = await video.createVideo(topic);
-
-            // ভবিষ্যতে চাইলে Facebook পোস্টও করা যাবে
-            // await facebook.postVideo(result.videoPath);
-
-            res.json({
-                success: true,
-                data: result
-            });
-
-        } catch (err) {
-
-            logger.error(err.message);
-
-            res.status(500).json({
-                success: false,
-                error: err.message
-            });
-
-        }
+        res.json({
+            success: true,
+            message: "Automation route working",
+            topic: req.body.topic || "No Topic"
+        });
 
     }
 

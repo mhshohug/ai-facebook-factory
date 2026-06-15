@@ -16,58 +16,53 @@ class VideoService {
             // ১. স্ক্রিপ্ট তৈরি
             const script = await gemini.generateScript(topic);
 
-            if (!script.success) 
-            const scenes = await image.generateScenes(script.text);
-
-if (!scenes.success) {
-    return scenes;
-}
-            {
+            if (!script.success) {
                 return script;
             }
 
+            // ২. সিন তৈরি
+            const scenes = await image.generateScenes(script.text);
+
+            if (!scenes.success) {
+                return scenes;
+            }
+
+            // ৩. সাবটাইটেল তৈরি
             const subtitleFile = await subtitle.generate(script.text);
 
-if (!subtitleFile.success) {
-    return subtitleFile;
-}
-            const images = await imageGenerator.generateAll(
-    scenes.scenes
-);
+            if (!subtitleFile.success) {
+                return subtitleFile;
+            }
 
-if (!images.success) {
-    return images;
-}
-const voiceFile = await voice.generate(script.text);
+            // ৪. ইমেজ তৈরি
+            const images = await imageGenerator.generateAll(scenes.scenes);
 
-if (!voiceFile.success) {
-    return voiceFile;
-}
-            // ৪. ভবিষ্যতে এখানে FFmpeg ভিডিও বানাবে
+            if (!images.success) {
+                return images;
+            }
 
-return {
+            // ৫. ভয়েস তৈরি
+            const voiceFile = await voice.generate(script.text);
 
-    success: true,
+            if (!voiceFile.success) {
+                return voiceFile;
+            }
 
-    topic,
-
-    script: script.text,
-
-    scenes: scenes.scenes,
-
-    images: images.files,
-
-    subtitle: subtitleFile.file,
-
-    voice: voiceFile.file,
-
-    status: "IMAGES_CREATED"
-
-};
+            // ৬. রেজাল্ট
+            return {
+                success: true,
+                topic,
+                script: script.text,
+                scenes: scenes.scenes,
+                images: images.files,
+                subtitle: subtitleFile.file,
+                voice: voiceFile.file,
+                status: "IMAGES_CREATED"
+            };
 
         } catch (err) {
 
-            logger.error(err.message);
+            logger.error(err);
 
             return {
                 success: false,

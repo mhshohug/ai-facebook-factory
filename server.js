@@ -28,11 +28,6 @@ app.use("/", indexRoute);
 app.use("/health", healthRoute);
 app.use("/api", apiRoute);
 
-// Dashboard
-app.get("/dashboard", (req, res) => {
-    res.sendFile(path.join(__dirname, "dashboard", "index.html"));
-});
-
 // 404
 app.use((req, res) => {
     res.status(404).json({

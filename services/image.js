@@ -3,33 +3,29 @@ const logger = require("./logger");
 
 class ImageService {
 
-    // ভিডিওর জন্য Scene Prompt তৈরি
     async generateScenes(script) {
 
         try {
 
             const prompt = `
-তুমি একজন Professional Cinematic Director।
+তুমি একজন ভিডিও সিন ডিজাইনার।
 
-নিচের বাংলা স্ক্রিপ্ট থেকে
-১০টি Scene তৈরি করো।
+নিচের বাংলা স্ক্রিপ্ট থেকে ৫টি Scene তৈরি করো।
 
-JSON format এ Return করবে।
+শুধুমাত্র JSON Array দেবে।
 
 Format:
 
 [
- {
-   "scene":1,
-   "duration":6,
-   "prompt":"Ultra realistic..."
- }
+  {
+    "id":1,
+    "title":"Scene 1",
+    "prompt":"Ultra realistic ..."
+  }
 ]
 
 Script:
-
 ${script}
-
 `;
 
             const result = await gemini.generate(prompt);
@@ -38,14 +34,37 @@ ${script}
                 return result;
             }
 
+            let text = result.text.trim();
+
+            // Remove markdown if Gemini returns ```json
+            text = text
+                .replace(/```json/g, "")
+                .replace(/```/g, "")
+                .trim();
+
+            let scenes;
+
+            try {
+                scenes = JSON.parse(text);
+            } catch (err) {
+
+                logger.error("Scene JSON Parse Error");
+
+                return {
+                    success: false,
+                    error: "Gemini returned invalid JSON",
+                    raw: text
+                };
+            }
+
             return {
                 success: true,
-                scenes: result.text
+                scenes
             };
 
         } catch (err) {
 
-            logger.error(err.message);
+            logger.error(err);
 
             return {
                 success: false,

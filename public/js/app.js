@@ -16,17 +16,24 @@ alert("Button clicked");
 
     try {
 
-        const res = await fetch("/api/automation/run", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                topic
-            })
-        });
+    console.log("Before fetch");
 
-        const data = await res.json();
+    const res = await fetch("/api/automation/run", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            topic
+        })
+    });
+
+    console.log("After fetch");
+    console.log("Status:", res.status);
+
+    const data = await res.json();
+
+    console.log(data);
 
         if (data.success) {
 

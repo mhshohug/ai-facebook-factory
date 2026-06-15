@@ -1,6 +1,9 @@
+console.log("app.js loaded");
 alert("app.js loaded");
 async function generate() {
 alert("Button clicked");
+    console.log("Generate clicked");
+alert("Generate clicked");
     const topic = document.getElementById("topic").value.trim();
 
     if (!topic) {

@@ -31,10 +31,13 @@ if (!scenes.success) {
 if (!subtitleFile.success) {
     return subtitleFile;
 }
-            await imageGenerator.generate(
-    "A cinematic view of Dhaka city at sunrise, ultra realistic, 8k",
-    "scene_01.png"
+            const images = await imageGenerator.generateAll(
+    scenes.scenes
 );
+
+if (!images.success) {
+    return images;
+}
 const voiceFile = await voice.generate(script.text);
 
 if (!voiceFile.success) {
@@ -43,13 +46,23 @@ if (!voiceFile.success) {
             // ৪. ভবিষ্যতে এখানে FFmpeg ভিডিও বানাবে
 
 return {
+
     success: true,
+
     topic,
+
     script: script.text,
+
     scenes: scenes.scenes,
+
+    images: images.files,
+
     subtitle: subtitleFile.file,
+
     voice: voiceFile.file,
-    status: "VOICE_CREATED"
+
+    status: "IMAGES_CREATED"
+
 };
 
         } catch (err) {

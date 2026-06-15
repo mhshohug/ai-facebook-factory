@@ -5,22 +5,24 @@ const logger = require("../services/logger");
 
 class AutomationController {
 
-    // শুধু AI Script Generate
+    // AI Script Generate
     async generateScript(req, res) {
 
         try {
 
-            const topic = req.body.topic || "বাংলাদেশের আজকের গুরুত্বপূর্ণ খবর";
+            const topic =
+                req.body.topic ||
+                "বাংলাদেশের আজকের গুরুত্বপূর্ণ খবর";
 
             const result = await gemini.generateScript(topic);
 
-            res.json(result);
+            return res.json(result);
 
         } catch (err) {
 
-            logger.error(err.message);
+            logger.error(err);
 
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 error: err.message
             });
@@ -29,14 +31,49 @@ class AutomationController {
 
     }
 
-    // টেস্ট Route
+    // Full Automation
     async run(req, res) {
 
-        res.json({
-            success: true,
-            message: "Automation route working",
-            topic: req.body.topic || "No Topic"
-        });
+        try {
+
+            const topic =
+                req.body.topic ||
+                "বাংলাদেশ";
+
+            logger.info(`Automation Started: ${topic}`);
+
+            const result =
+                await video.createVideo(topic);
+
+            if (!result.success) {
+
+                return res.status(500).json(result);
+
+            }
+
+            // ভবিষ্যতে Facebook Upload
+            /*
+            if(result.video){
+                await facebook.postVideo(result.video);
+            }
+            */
+
+            return res.json({
+                success: true,
+                message: "Automation completed successfully",
+                data: result
+            });
+
+        } catch (err) {
+
+            logger.error(err);
+
+            return res.status(500).json({
+                success: false,
+                error: err.message
+            });
+
+        }
 
     }
 

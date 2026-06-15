@@ -1,3 +1,4 @@
+const voice = require("./voice");
 const imageGenerator = require("./imageGenerator");
 const subtitle = require("./subtitle");
 const image = require("./image");
@@ -34,16 +35,21 @@ if (!subtitleFile.success) {
     "A cinematic view of Dhaka city at sunrise, ultra realistic, 8k",
     "scene_01.png"
 );
+const voiceFile = await voice.generate(script.text);
 
+if (!voiceFile.success) {
+    return voiceFile;
+}
             // ৪. ভবিষ্যতে এখানে FFmpeg ভিডিও বানাবে
 
-          return {
+return {
     success: true,
     topic,
     script: script.text,
     scenes: scenes.scenes,
     subtitle: subtitleFile.file,
-    status: "SUBTITLE_CREATED"
+    voice: voiceFile.file,
+    status: "VOICE_CREATED"
 };
 
         } catch (err) {

@@ -32,24 +32,33 @@ class AutomationController {
     // ভবিষ্যতে এখানেই Video + Facebook Post হবে
     async run(req, res) {
 
-    try {
+        try {
 
-        const topic = req.body.topic || "বাংলাদেশ";
+            const topic = req.body.topic || "বাংলাদেশ";
 
-        const result = await video.createVideo(topic);
+            const result = await video.createVideo(topic);
 
-        res.json(result);
+            // ভবিষ্যতে চাইলে Facebook পোস্টও করা যাবে
+            // await facebook.postVideo(result.videoPath);
 
-    } catch (err) {
+            res.json({
+                success: true,
+                data: result
+            });
 
-        logger.error(err.message);
+        } catch (err) {
 
-        res.status(500).json({
-            success: false,
-            error: err.message
-        });
+            logger.error(err.message);
+
+            res.status(500).json({
+                success: false,
+                error: err.message
+            });
+
+        }
 
     }
 
 }
+
 module.exports = new AutomationController();

@@ -1,112 +1,48 @@
-const fs = require("fs");
-const path = require("path");
-const axios = require("axios");
-const logger = require("./logger");
+const video = require("../services/video");
+const gemini = require("../services/gemini");
+const facebook = require("../services/facebook");
+const logger = require("../services/logger");
 
-const API_KEY = process.env.HUGGINGFACE_API_KEY;
-const MODEL =
-    "stabilityai/stable-diffusion-xl-base-1.0";
+class AutomationController {
 
-class ImageGenerator {
-
-    async generateImage(prompt, index) {
-
+    async generateScript(req, res) {
         try {
+            const topic = req.body.topic || "বাংলাদেশ";
 
-            const response = await axios.post(
-                `https://api-inference.huggingface.co/models/${MODEL}`,
-                {
-                    inputs: prompt
-                },
-                {
-                    responseType: "arraybuffer",
-                    headers: {
-                        Authorization: `Bearer ${API_KEY}`,
-                        Accept: "image/png",
-                        "Content-Type": "application/json"
-                    },
-                    timeout: 180000
-                }
-            );
+            const result = await gemini.generateScript(topic);
 
-            const outputDir = path.join(
-                __dirname,
-                "..",
-                "output",
-                "images"
-            );
-
-            if (!fs.existsSync(outputDir)) {
-                fs.mkdirSync(outputDir, {
-                    recursive: true
-                });
-            }
-
-            const fileName = `scene_${index + 1}.png`;
-
-            const filePath = path.join(
-                outputDir,
-                fileName
-            );
-
-            fs.writeFileSync(filePath, response.data);
-
-            return {
-                success: true,
-                file: filePath
-            };
-
-        } catch (err) {
-
-            logger.error(err.response?.data || err.message);
-
-            return {
-                success: false,
-                error: err.message
-            };
-
-        }
-
-    }
-
-    async generateAll(scenes) {
-
-        try {
-
-            const files = [];
-
-            for (let i = 0; i < scenes.length; i++) {
-
-                logger.info(
-                    `Generating Image ${i + 1}/${scenes.length}`
-                );
-
-                const image = await this.generateImage(
-                    scenes[i].prompt,
-                    i
-                );
-
-                if (!image.success) {
-                    return image;
-                }
-
-                files.push(image.file);
-
-            }
-
-            return {
-                success: true,
-                files
-            };
+            res.json(result);
 
         } catch (err) {
 
             logger.error(err);
 
-            return {
+            res.status(500).json({
                 success: false,
                 error: err.message
-            };
+            });
+
+        }
+    }
+
+    async run(req, res) {
+
+        try {
+
+            const topic = req.body.topic || "বাংলাদেশ";
+
+            const result = await video.createVideo(topic);
+
+            res.json(result);
+
+        } catch (err) {
+
+            logger.error(err);
+
+            res.status(500).json({
+                success: false,
+                error: err.message
+            });
 
         }
 
@@ -114,4 +50,4 @@ class ImageGenerator {
 
 }
 
-module.exports = new ImageGenerator();
+module.exports = new AutomationController();

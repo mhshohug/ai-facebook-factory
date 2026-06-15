@@ -1,16 +1,10 @@
 const express = require("express");
+const path = require("path");
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    res.status(200).json({
-        success: true,
-        project: "AI Facebook Factory",
-        version: "1.0.0",
-        status: "Running 🚀",
-        developer: "Mh Shohug",
-        time: new Date().toISOString()
-    });
+    res.sendFile(path.join(__dirname, "..", "index.html"));
 });
 
 module.exports = router;

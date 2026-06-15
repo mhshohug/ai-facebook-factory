@@ -51,3 +51,6 @@ app.listen(PORT, () => {
 const healthRoute = require("./routes/health");
 
 app.use("/health", healthRoute);
+
+const apiRoute = require("./routes/api");
+app.use("/api", apiRoute);

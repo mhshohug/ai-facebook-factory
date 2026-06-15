@@ -1,3 +1,4 @@
+const imageGenerator = require("./imageGenerator");
 const subtitle = require("./subtitle");
 const image = require("./image");
 const logger = require("./logger");
@@ -29,7 +30,10 @@ if (!scenes.success) {
 if (!subtitleFile.success) {
     return subtitleFile;
 }
-            // ৩. ভবিষ্যতে এখানে AI Image Generator হবে
+            await imageGenerator.generate(
+    "A cinematic view of Dhaka city at sunrise, ultra realistic, 8k",
+    "scene_01.png"
+);
 
             // ৪. ভবিষ্যতে এখানে FFmpeg ভিডিও বানাবে
 

@@ -1,9 +1,9 @@
-const voice = require("./voice");
+const gemini = require("./gemini");
+const image = require("./image");
 const imageGenerator = require("./imageGenerator");
 const subtitle = require("./subtitle");
-const image = require("./image");
+const voice = require("./voice");
 const logger = require("./logger");
-const gemini = require("./gemini");
 
 class VideoService {
 
@@ -11,53 +11,69 @@ class VideoService {
 
         try {
 
-            logger.info(`Creating video for: ${topic}`);
+            logger.info(`Creating AI Video: ${topic}`);
 
-            // ১. স্ক্রিপ্ট তৈরি
+            // 1. Generate Script
             const script = await gemini.generateScript(topic);
 
             if (!script.success) {
                 return script;
             }
 
-            // ২. সিন তৈরি
+            // 2. Generate Scenes
             const scenes = await image.generateScenes(script.text);
 
             if (!scenes.success) {
                 return scenes;
             }
 
-            // ৩. সাবটাইটেল তৈরি
-            const subtitleFile = await subtitle.generate(script.text);
-
-            if (!subtitleFile.success) {
-                return subtitleFile;
-            }
-
-            // ৪. ইমেজ তৈরি
-            const images = await imageGenerator.generateAll(scenes.scenes);
+            // 3. Generate Images
+            const images = await imageGenerator.generateAll(
+                scenes.scenes
+            );
 
             if (!images.success) {
                 return images;
             }
 
-            // ৫. ভয়েস তৈরি
-            const voiceFile = await voice.generate(script.text);
+            // 4. Generate Subtitle
+            const subtitleFile = await subtitle.generate(
+                script.text
+            );
+
+            if (!subtitleFile.success) {
+                return subtitleFile;
+            }
+
+            // 5. Generate Voice
+            const voiceFile = await voice.generate(
+                script.text
+            );
 
             if (!voiceFile.success) {
                 return voiceFile;
             }
 
-            // ৬. রেজাল্ট
+            logger.info("AI Video Assets Created Successfully");
+
             return {
+
                 success: true,
+
                 topic,
+
                 script: script.text,
+
                 scenes: scenes.scenes,
+
                 images: images.files,
+
                 subtitle: subtitleFile.file,
+
                 voice: voiceFile.file,
-                status: "IMAGES_CREATED"
+
+                status: "READY_FOR_VIDEO_RENDER"
+
             };
 
         } catch (err) {
@@ -65,8 +81,11 @@ class VideoService {
             logger.error(err);
 
             return {
+
                 success: false,
+
                 error: err.message
+
             };
 
         }

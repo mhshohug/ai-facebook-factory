@@ -7,53 +7,104 @@ class ImageGenerator {
 
     constructor() {
         this.apiKey = process.env.HUGGINGFACE_API_KEY;
-
-        // শুরুতে Stable Diffusion XL ব্যবহার করছি
-        this.model =
-            "stabilityai/stable-diffusion-xl-base-1.0";
+        this.model = "stabilityai/stable-diffusion-xl-base-1.0";
     }
 
-    async generate(prompt, fileName = "scene_01.png") {
+    async generate(prompt, fileName) {
 
         try {
 
             const response = await axios({
-                url: `https://api-inference.huggingface.co/models/${this.model}`,
+
                 method: "POST",
+
+                url: `https://api-inference.huggingface.co/models/${this.model}`,
+
                 headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json"
+                    Authorization: `Bearer ${this.apiKey}`
                 },
+
                 data: {
                     inputs: prompt
                 },
+
                 responseType: "arraybuffer"
+
             });
 
-            const outputDir = path.join(__dirname, "../output/images");
+            const dir = path.join(__dirname, "../output/images");
 
-            if (!fs.existsSync(outputDir)) {
-                fs.mkdirSync(outputDir, { recursive: true });
-            }
+            if (!fs.existsSync(dir))
+                fs.mkdirSync(dir, { recursive: true });
 
-            const output = path.join(outputDir, fileName);
+            const output = path.join(dir, fileName);
 
             fs.writeFileSync(output, response.data);
 
-            logger.info(`Image Saved: ${fileName}`);
+            logger.info(`${fileName} Created`);
+
+            return output;
+
+        } catch (err) {
+
+            logger.error(err.message);
+
+            return null;
+
+        }
+
+    }
+
+    async generateAll(sceneText) {
+
+        try {
+
+            let scenes;
+
+            if (typeof sceneText === "string") {
+
+                scenes = JSON.parse(sceneText);
+
+            } else {
+
+                scenes = sceneText;
+
+            }
+
+            let files = [];
+
+            for (let i = 0; i < scenes.length; i++) {
+
+                const file = await this.generate(
+
+                    scenes[i].prompt,
+
+                    `scene_${String(i + 1).padStart(2, "0")}.png`
+
+                );
+
+                files.push(file);
+
+            }
 
             return {
+
                 success: true,
-                file: output
+
+                files
+
             };
 
         } catch (err) {
 
-            logger.error(err.response?.data || err.message);
+            logger.error(err.message);
 
             return {
+
                 success: false,
+
                 error: err.message
+
             };
 
         }

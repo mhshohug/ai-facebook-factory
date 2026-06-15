@@ -1,3 +1,4 @@
+const video = require("../services/video");
 const gemini = require("../services/gemini");
 const facebook = require("../services/facebook");
 const logger = require("../services/logger");
@@ -31,27 +32,24 @@ class AutomationController {
     // ভবিষ্যতে এখানেই Video + Facebook Post হবে
     async run(req, res) {
 
-        try {
+    try {
 
-            res.json({
-                success: true,
-                message: "Automation Started",
-                status: "Coming Soon"
-            });
+        const topic = req.body.topic || "বাংলাদেশ";
 
-        } catch (err) {
+        const result = await video.createVideo(topic);
 
-            logger.error(err.message);
+        res.json(result);
 
-            res.status(500).json({
-                success: false,
-                error: err.message
-            });
+    } catch (err) {
 
-        }
+        logger.error(err.message);
+
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
 
     }
 
 }
-
 module.exports = new AutomationController();

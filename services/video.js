@@ -1,3 +1,4 @@
+const subtitle = require("./subtitle");
 const image = require("./image");
 const logger = require("./logger");
 const gemini = require("./gemini");
@@ -23,8 +24,11 @@ if (!scenes.success) {
                 return script;
             }
 
-            // ২. ভবিষ্যতে এখানে Scene Generator হবে
+            const subtitleFile = await subtitle.generate(script.text);
 
+if (!subtitleFile.success) {
+    return subtitleFile;
+}
             // ৩. ভবিষ্যতে এখানে AI Image Generator হবে
 
             // ৪. ভবিষ্যতে এখানে FFmpeg ভিডিও বানাবে
@@ -34,7 +38,8 @@ if (!scenes.success) {
     topic,
     script: script.text,
     scenes: scenes.scenes,
-    status: "SCENES_CREATED"
+    subtitle: subtitleFile.file,
+    status: "SUBTITLE_CREATED"
 };
 
         } catch (err) {

@@ -1,51 +1,127 @@
-const { exec } = require("child_process");
+const ffmpeg = require("fluent-ffmpeg");
+const fs = require("fs-extra");
 const path = require("path");
 const logger = require("./logger");
 
 class FFmpegService {
 
-    async createVideo(imagesPath, audioPath, subtitlePath, outputName = "video.mp4") {
+    async render(images, voice, subtitle) {
 
-        return new Promise((resolve) => {
+        try {
 
-            const output = path.join(__dirname, "../output", outputName);
+            if (!Array.isArray(images) || images.length === 0) {
+                return {
+                    success: false,
+                    error: "No images found"
+                };
+            }
 
-            const command = `
-ffmpeg \
--r 1/5 \
--i ${imagesPath}/scene_%02d.png \
--i ${audioPath} \
--vf subtitles=${subtitlePath} \
--c:v libx264 \
--pix_fmt yuv420p \
--c:a aac \
--shortest \
-${output}
-`;
+            if (!await fs.pathExists(voice)) {
+                return {
+                    success: false,
+                    error: "Voice file not found"
+                };
+            }
 
-            exec(command, (error) => {
+            const outputDir = path.join(
+                __dirname,
+                "..",
+                "output",
+                "video"
+            );
 
-                if (error) {
+            await fs.ensureDir(outputDir);
 
-                    logger.error(error.message);
+            const videoFile = path.join(
+                outputDir,
+                "final.mp4"
+            );
 
-                    return resolve({
-                        success: false,
-                        error: error.message
-                    });
+            const listFile = path.join(
+                outputDir,
+                "images.txt"
+            );
 
-                }
+            let content = "";
 
-                logger.info("Video Created Successfully");
+            images.forEach(file => {
 
-                resolve({
-                    success: true,
-                    file: output
-                });
+                content += `file '${path.resolve(file)}'\n`;
+                content += "duration 5\n";
 
             });
 
-        });
+            content += `file '${path.resolve(images[images.length - 1])}'`;
+
+            await fs.writeFile(listFile, content);
+
+            return new Promise((resolve) => {
+
+                ffmpeg()
+
+                    .input(listFile)
+                    .inputOptions([
+                        "-f concat",
+                        "-safe 0"
+                    ])
+
+                    .input(voice)
+
+                    .videoCodec("libx264")
+                    .audioCodec("aac")
+
+                    .outputOptions([
+                        "-pix_fmt yuv420p",
+                        "-shortest"
+                    ])
+
+                    .output(videoFile)
+
+                    .on("end", () => {
+
+                        logger.info("Video Render Complete");
+
+                        resolve({
+
+                            success: true,
+
+                            file: videoFile
+
+                        });
+
+                    })
+
+                    .on("error", (err) => {
+
+                        logger.error(err);
+
+                        resolve({
+
+                            success: false,
+
+                            error: err.message
+
+                        });
+
+                    })
+
+                    .run();
+
+            });
+
+        } catch (err) {
+
+            logger.error(err);
+
+            return {
+
+                success: false,
+
+                error: err.message
+
+            };
+
+        }
 
     }
 

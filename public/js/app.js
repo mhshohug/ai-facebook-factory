@@ -89,3 +89,5 @@ window.testGenerate = function () {
 };
 
 window.generate = generate;
+
+document.getElementById("generateBtn").addEventListener("click", generate);

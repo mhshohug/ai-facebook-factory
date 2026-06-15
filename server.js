@@ -45,21 +45,17 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-    console.log(`🚀 AI Facebook Factory running on port ${PORT}`);
-});
+
+    logger.info(`AI Facebook Factory Started on Port ${PORT}`);
+
+    scheduler.start();
 const healthRoute = require("./routes/health");
 
 app.use("/health", healthRoute);
 
 const apiRoute = require("./routes/api");
+    console.log(`🚀 AI Facebook Factory running on port ${PORT}`);
 app.use("/api", apiRoute);
 const logger = require("./services/logger");
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    logger.info(`AI Facebook Factory Started on Port ${PORT}`);
-    console.log(`🚀 AI Facebook Factory running on port ${PORT}`);
 });

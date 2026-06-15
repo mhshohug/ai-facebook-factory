@@ -1,77 +1,112 @@
-const video = require("../services/video");
-const gemini = require("../services/gemini");
-const facebook = require("../services/facebook");
-const logger = require("../services/logger");
+const fs = require("fs");
+const path = require("path");
+const axios = require("axios");
+const logger = require("./logger");
 
-class AutomationController {
+const API_KEY = process.env.HUGGINGFACE_API_KEY;
+const MODEL =
+    "stabilityai/stable-diffusion-xl-base-1.0";
 
-    // AI Script Generate
-    async generateScript(req, res) {
+class ImageGenerator {
+
+    async generateImage(prompt, index) {
 
         try {
 
-            const topic =
-                req.body.topic ||
-                "বাংলাদেশের আজকের গুরুত্বপূর্ণ খবর";
+            const response = await axios.post(
+                `https://api-inference.huggingface.co/models/${MODEL}`,
+                {
+                    inputs: prompt
+                },
+                {
+                    responseType: "arraybuffer",
+                    headers: {
+                        Authorization: `Bearer ${API_KEY}`,
+                        Accept: "image/png",
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 180000
+                }
+            );
 
-            const result = await gemini.generateScript(topic);
+            const outputDir = path.join(
+                __dirname,
+                "..",
+                "output",
+                "images"
+            );
 
-            return res.json(result);
+            if (!fs.existsSync(outputDir)) {
+                fs.mkdirSync(outputDir, {
+                    recursive: true
+                });
+            }
+
+            const fileName = `scene_${index + 1}.png`;
+
+            const filePath = path.join(
+                outputDir,
+                fileName
+            );
+
+            fs.writeFileSync(filePath, response.data);
+
+            return {
+                success: true,
+                file: filePath
+            };
 
         } catch (err) {
 
-            logger.error(err);
+            logger.error(err.response?.data || err.message);
 
-            return res.status(500).json({
+            return {
                 success: false,
                 error: err.message
-            });
+            };
 
         }
 
     }
 
-    // Full Automation
-    async run(req, res) {
+    async generateAll(scenes) {
 
         try {
 
-            const topic =
-                req.body.topic ||
-                "বাংলাদেশ";
+            const files = [];
 
-            logger.info(`Automation Started: ${topic}`);
+            for (let i = 0; i < scenes.length; i++) {
 
-            const result =
-                await video.createVideo(topic);
+                logger.info(
+                    `Generating Image ${i + 1}/${scenes.length}`
+                );
 
-            if (!result.success) {
+                const image = await this.generateImage(
+                    scenes[i].prompt,
+                    i
+                );
 
-                return res.status(500).json(result);
+                if (!image.success) {
+                    return image;
+                }
+
+                files.push(image.file);
 
             }
 
-            // ভবিষ্যতে Facebook Upload
-            /*
-            if(result.video){
-                await facebook.postVideo(result.video);
-            }
-            */
-
-            return res.json({
+            return {
                 success: true,
-                message: "Automation completed successfully",
-                data: result
-            });
+                files
+            };
 
         } catch (err) {
 
             logger.error(err);
 
-            return res.status(500).json({
+            return {
                 success: false,
                 error: err.message
-            });
+            };
 
         }
 
@@ -79,4 +114,4 @@ class AutomationController {
 
 }
 
-module.exports = new AutomationController();
+module.exports = new ImageGenerator();

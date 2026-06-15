@@ -17,6 +17,7 @@
   "author": "Mh Shohug",
   "license": "MIT",
   "dependencies": {
+    "edge-tts": "^1.3.6"
     "@google/genai": "^1.15.0"
     "axios": "^1.11.0",
     "cors": "^2.8.5",

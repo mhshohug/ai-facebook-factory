@@ -1,73 +1,85 @@
-const fs = require("fs");
+const { ElevenLabsClient } = require("@elevenlabs/elevenlabs-js");
+const fs = require("fs-extra");
 const path = require("path");
-const axios = require("axios");
 const logger = require("./logger");
 
-const API_KEY = process.env.HUGGINGFACE_API_KEY;
+const client = new ElevenLabsClient({
+    apiKey: process.env.ELEVENLABS_API_KEY
+});
 
-// আরও স্থিতিশীল ও ফাস্ট TTS মডেল
-const MODEL = "facebook/mms-tts-beng";   // বাংলা সাপোর্ট ভালো
+const VOICE_ID = "4tRn1lSkEn13EVTuqb0g";
 
 class VoiceService {
 
     async generate(text) {
+
         try {
-            if (!API_KEY) {
+
+            if (!process.env.ELEVENLABS_API_KEY) {
+
                 return {
                     success: false,
-                    error: "HUGGINGFACE_API_KEY not found"
+                    error: "ELEVENLABS_API_KEY not found"
                 };
+
             }
 
-            if (!text || text.trim() === "") {
-                return {
-                    success: false,
-                    error: "Text is empty"
-                };
-            }
+            logger.info("Generating Voice...");
 
-            logger.info("Generating AI Voice with MMS-TTS...");
-
-            const response = await axios.post(
-                `https://router.huggingface.co/hf-inference/models/${MODEL}`,
+            const audio = await client.textToSpeech.convert(
+                VOICE_ID,
                 {
-                    inputs: text.substring(0, 500)  // অনেক বড় টেক্সট কাটা
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${API_KEY}`,
-                        "Content-Type": "application/json",
-                        Accept: "audio/wav"
-                    },
-                    responseType: "arraybuffer",
-                    timeout: 45000
+                    text,
+                    modelId: "eleven_multilingual_v2",
+                    outputFormat: "mp3_44100_128"
                 }
             );
 
-            const outputDir = path.join(__dirname, "..", "output", "voice");
-            if (!fs.existsSync(outputDir)) {
-                fs.mkdirSync(outputDir, { recursive: true });
+            const outputDir = path.join(
+                __dirname,
+                "..",
+                "output",
+                "voice"
+            );
+
+            await fs.ensureDir(outputDir);
+
+            const filePath = path.join(
+                outputDir,
+                "voice.mp3"
+            );
+
+            const chunks = [];
+
+            for await (const chunk of audio) {
+                chunks.push(Buffer.from(chunk));
             }
 
-            const outputFile = path.join(outputDir, "voice.wav");
+            await fs.writeFile(
+                filePath,
+                Buffer.concat(chunks)
+            );
 
-            fs.writeFileSync(outputFile, response.data);
-
-            logger.info("✅ Voice generated successfully.");
+            logger.info("Voice Generated");
 
             return {
                 success: true,
-                file: outputFile
+                file: filePath
             };
 
         } catch (err) {
-            logger.error(err.response?.data || err.message);
+
+            logger.error(err);
+
             return {
                 success: false,
-                error: err.response?.data?.error || err.message
+                error: err.message
             };
+
         }
+
     }
+
 }
 
 module.exports = new VoiceService();

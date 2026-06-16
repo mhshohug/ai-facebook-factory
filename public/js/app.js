@@ -1,82 +1,67 @@
 async function generate() {
+    const topicInput = document.getElementById("topic");
+    const status = document.getElementById("status");
+    const result = document.getElementById("result");
 
-    alert("1. Generate function called");
-
-    const topic = document.getElementById("topic").value.trim();
+    const topic = topicInput.value.trim();
 
     if (!topic) {
         alert("অনুগ্রহ করে একটি টপিক লিখুন");
         return;
     }
 
-    const status = document.getElementById("status");
-    const result = document.getElementById("result");
+    // Disable button during processing
+    const button = document.querySelector("button");
+    if (button) button.disabled = true;
 
-    status.innerHTML = "⏳ AI ভিডিও তৈরি হচ্ছে...";
-    result.innerText = "";
+    status.innerHTML = "⏳ প্রসেস শুরু হচ্ছে... (১-২ মিনিট লাগতে পারে)";
+    result.innerHTML = "";
 
     try {
-
-        alert("2. Before Fetch");
+        console.log("🚀 Request sending for:", topic);
 
         const res = await fetch("/api/automation/run", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                topic
-            })
+            body: JSON.stringify({ topic })
         });
 
-        alert("3. After Fetch");
-        alert("Status: " + res.status);
+        console.log("📡 Response status:", res.status);
 
         const data = await res.json();
-
-        alert("4. Response Received");
+        console.log("📦 Full response:", data);
 
         if (data.success) {
-            status.innerHTML = "✅ সফলভাবে সম্পন্ন হয়েছে";
+            status.innerHTML = "✅ সফলভাবে সম্পন্ন হয়েছে!";
+            result.innerHTML = `<pre style="background:#222; padding:15px; text-align:left; max-height:400px; overflow:auto;">${JSON.stringify(data, null, 2)}</pre>`;
         } else {
-            status.innerHTML = "❌ ব্যর্থ হয়েছে";
+            status.innerHTML = "❌ ব্যর্থ হয়েছে";
+            result.innerText = data.error || "Unknown error occurred";
         }
 
-        result.innerText = JSON.stringify(data, null, 2);
-
     } catch (err) {
-
-        alert("ERROR: " + err.message);
-
-        status.innerHTML = "❌ Server Error";
-
+        console.error("❌ Fetch Error:", err);
+        status.innerHTML = "❌ কানেকশন এরর";
         result.innerText = err.message;
-
+    } finally {
+        if (button) button.disabled = false;
     }
-
 }
 
-async function checkServer() {
-
-    try {
-
-        const res = await fetch("/health");
-        const data = await res.json();
-
-        if (data.success) {
-            document.getElementById("status").innerHTML = "🟢 Server Online";
-        } else {
-            document.getElementById("status").innerHTML = "🔴 Server Offline";
-        }
-
-    } catch (err) {
-
-        document.getElementById("status").innerHTML = "🔴 Server Offline";
-
-    }
-
-}
-
+// Make function globally available
 window.generate = generate;
 
-checkServer();
+// Check server on load
+async function checkServer() {
+    try {
+        const res = await fetch("/health");
+        const data = await res.json();
+        document.getElementById("status").innerHTML = "🟢 Server Online";
+    } catch (err) {
+        document.getElementById("status").innerHTML = "🔴 Server Offline";
+    }
+}
+
+window.onload = checkServer;

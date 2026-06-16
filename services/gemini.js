@@ -9,9 +9,9 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// সঠিক মডেল নাম (latest)
+// সবচেয়ে স্থিতিশীল ও পুরানো মডেল (যেটা বেশিরভাগ API Key এ কাজ করে)
 const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash-latest"   // ← এটা ব্যবহার করো
+    model: "gemini-pro"
 });
 
 class GeminiService {

@@ -159,3 +159,8 @@ async function generate() {
 }
 
 window.generate = generate;
+document.addEventListener("DOMContentLoaded", () => {
+    document
+        .getElementById("generateBtn")
+        .addEventListener("click", generate);
+});

@@ -6,6 +6,20 @@ const gemini = require("../services/gemini");
 const imageGenerator = require("../services/imageGenerator");
 const video = require("../services/video");
 
+const express = require("express");
+const path = require("path");
+
+// Images
+router.use("/files/images", express.static(path.join(__dirname, "..", "output", "images")));
+
+// Voice
+router.use("/files/voice", express.static(path.join(__dirname, "..", "output", "voice")));
+
+// Subtitle
+router.use("/files/subtitle", express.static(path.join(__dirname, "..", "output", "subtitle")));
+
+// Video
+router.use("/files/video", express.static(path.join(__dirname, "..", "output", "video")));
 // ===============================
 // Root API
 // ===============================

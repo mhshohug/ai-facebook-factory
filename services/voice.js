@@ -30,7 +30,7 @@ class VoiceService {
             logger.info("Generating AI Voice...");
 
             const response = await axios.post(
-                `https://api-inference.huggingface.co/models/${MODEL}`,
+                `https://api-inference.huggingface.co/models/...}`,
                 {
                     inputs: text
                 },

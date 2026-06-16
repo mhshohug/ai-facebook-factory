@@ -9,33 +9,31 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
+// আরও স্থিতিশীল মডেল ব্যবহার করা হচ্ছে
 const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash"
+    model: "gemini-1.5-flash"
+    // model: "gemini-1.5-flash-latest"  ← চাইলে এটাও ট্রাই করতে পারো
 });
 
 class GeminiService {
 
     // AI Video Script
     async generateScript(topic) {
-
         try {
-
             const prompt = `
 তুমি একজন পেশাদার বাংলা ভিডিও স্ক্রিপ্ট রাইটার।
 
-বিষয়:
-${topic}
+বিষয়: ${topic}
 
 নিয়ম:
 - শুধুমাত্র বাংলা ভাষায় লিখবে।
-- ১-২ মিনিটের ভিডিওর জন্য লিখবে।
+- ১-২ মিনিটের ভিডিওর জন্য স্ক্রিপ্ট লিখবে।
 - শুরুতে আকর্ষণীয় Hook থাকবে।
 - শেষে Call To Action থাকবে।
 - Markdown ব্যবহার করবে না।
 `;
 
             const result = await model.generateContent(prompt);
-
             const text = result.response.text();
 
             return {
@@ -44,25 +42,18 @@ ${topic}
             };
 
         } catch (err) {
-
             logger.error(err);
-
             return {
                 success: false,
                 error: err.message
             };
-
         }
-
     }
 
-    // Generic AI Generate (Image Scene, Subtitle, etc.)
+    // Generic AI Generate
     async generate(prompt) {
-
         try {
-
             const result = await model.generateContent(prompt);
-
             const text = result.response.text();
 
             return {
@@ -71,18 +62,13 @@ ${topic}
             };
 
         } catch (err) {
-
             logger.error(err);
-
             return {
                 success: false,
                 error: err.message
             };
-
         }
-
     }
-
 }
 
 module.exports = new GeminiService();

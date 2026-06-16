@@ -5,14 +5,13 @@ const logger = require("./logger");
 
 const API_KEY = process.env.HUGGINGFACE_API_KEY;
 
-const MODEL = "microsoft/speecht5_tts";
+// আরও স্থিতিশীল ও ফাস্ট TTS মডেল
+const MODEL = "facebook/mms-tts-beng";   // বাংলা সাপোর্ট ভালো
 
 class VoiceService {
 
     async generate(text) {
-
         try {
-
             if (!API_KEY) {
                 return {
                     success: false,
@@ -27,12 +26,12 @@ class VoiceService {
                 };
             }
 
-            logger.info("Generating AI Voice...");
+            logger.info("Generating AI Voice with MMS-TTS...");
 
             const response = await axios.post(
-                `https://api-inference.huggingface.co/models/...}`,
+                `https://router.huggingface.co/hf-inference/models/${MODEL}`,
                 {
-                    inputs: text
+                    inputs: text.substring(0, 500)  // অনেক বড় টেক্সট কাটা
                 },
                 {
                     headers: {
@@ -41,31 +40,20 @@ class VoiceService {
                         Accept: "audio/wav"
                     },
                     responseType: "arraybuffer",
-                    timeout: 300000
+                    timeout: 45000
                 }
             );
 
-            const outputDir = path.join(
-                __dirname,
-                "..",
-                "output",
-                "voice"
-            );
-
+            const outputDir = path.join(__dirname, "..", "output", "voice");
             if (!fs.existsSync(outputDir)) {
-                fs.mkdirSync(outputDir, {
-                    recursive: true
-                });
+                fs.mkdirSync(outputDir, { recursive: true });
             }
 
-            const outputFile = path.join(
-                outputDir,
-                "voice.wav"
-            );
+            const outputFile = path.join(outputDir, "voice.wav");
 
             fs.writeFileSync(outputFile, response.data);
 
-            logger.info("Voice generated successfully.");
+            logger.info("✅ Voice generated successfully.");
 
             return {
                 success: true,
@@ -73,18 +61,13 @@ class VoiceService {
             };
 
         } catch (err) {
-
             logger.error(err.response?.data || err.message);
-
             return {
                 success: false,
                 error: err.response?.data?.error || err.message
             };
-
         }
-
     }
-
 }
 
 module.exports = new VoiceService();

@@ -7,7 +7,7 @@ const client = new ElevenLabsClient({
     apiKey: process.env.ELEVENLABS_API_KEY
 });
 
-const VOICE_ID = "4tRn1lSkEn13EVTuqb0g";
+const VOICE_ID = "XrLABIfXO4hqnpiG2b6E";
 
 class VoiceService {
 

@@ -1,45 +1,66 @@
-console.log("✅ app.js loaded");
+console.log("✅ app.js fully loaded");
 
 document.getElementById("status").innerHTML = "🟢 Server Online";
 
-// Simple Generate Function
+// Main Generate Function
 async function generate() {
-    console.log("🚀 Generate button clicked");
+    console.log("🚀 === BUTTON CLICKED ===");
 
-    const topic = document.getElementById("topic").value.trim();
+    const topicField = document.getElementById("topic");
+    const topic = topicField ? topicField.value.trim() : "";
+
     if (!topic) {
-        alert("টপিক লিখুন");
+        alert("অনুগ্রহ করে টপিক লিখুন!");
         return;
     }
 
     const status = document.getElementById("status");
     const result = document.getElementById("result");
+    const button = document.querySelector("button");
 
-    status.innerHTML = "⏳ প্রসেস চলছে... (১-২ মিনিট লাগবে)";
+    if (button) button.disabled = true;
+    if (button) button.innerHTML = "⏳ প্রসেস চলছে...";
+
+    status.innerHTML = `⏳ "${topic}" এর জন্য ভিডিও তৈরি হচ্ছে... <br>(১-২ মিনিট লাগবে)`;
     result.innerHTML = "";
 
     try {
-        const res = await fetch("/api/automation/run", {
+        console.log("📤 Sending POST request...");
+
+        const response = await fetch("/api/automation/run", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({ topic: topic })
         });
 
-        const data = await res.json();
+        console.log("📥 Response Status:", response.status);
+
+        const data = await response.json();
+        console.log("📦 Full Response:", data);
 
         if (data.success) {
-            status.innerHTML = "✅ সফল হয়েছে!";
-            result.innerHTML = `<pre style="background:#222;padding:10px;">${JSON.stringify(data, null, 2)}</pre>`;
+            status.innerHTML = "✅ সফলভাবে সম্পন্ন হয়েছে!";
+            result.innerHTML = `<pre style="background:#222; color:#0f0; padding:15px; text-align:left; max-height:400px; overflow:auto;">${JSON.stringify(data, null, 2)}</pre>`;
         } else {
             status.innerHTML = "❌ ব্যর্থ হয়েছে";
-            result.innerText = data.error || "Error";
+            result.innerHTML = `<pre style="color:red;">${data.error || "Unknown error"}</pre>`;
         }
+
     } catch (err) {
-        console.error(err);
-        status.innerHTML = "❌ Error: " + err.message;
+        console.error("❌ CATCH ERROR:", err);
+        status.innerHTML = "❌ এরর হয়েছে (Console দেখুন)";
+        result.innerText = err.message;
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = "Generate AI Video";
+        }
     }
 }
 
+// Make it global
 window.generate = generate;
 
-console.log("✅ Everything ready");
+console.log("✅ generate() function is ready");

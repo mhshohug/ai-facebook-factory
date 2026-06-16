@@ -1,12 +1,9 @@
 const express = require("express");
 const router = express.Router();
-
 const automation = require("../controllers/automationController");
 const gemini = require("../services/gemini");
 const imageGenerator = require("../services/imageGenerator");
 const video = require("../services/video");
-
-const express = require("express");
 const path = require("path");
 
 // Images

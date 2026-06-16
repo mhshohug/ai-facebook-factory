@@ -7,8 +7,6 @@ async function generate() {
 
     const topic = document.getElementById("topic").value.trim();
 
-    const topic = document.getElementById("topic").value.trim();
-
     if (!topic) {
         alert("Please enter a topic!");
         return;

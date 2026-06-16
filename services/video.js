@@ -22,7 +22,9 @@ class VideoService {
             }
 
             // 2. Generate Scenes
-            const scenes = await image.generateScenes(script.text);
+            const scenes = await image.generateScenes(
+                script.text
+            );
 
             if (!scenes.success) {
                 return scenes;
@@ -56,15 +58,15 @@ class VideoService {
             }
 
             // 6. Render Final Video
-            //const video = await ffmpeg.render(
-               // images.files,
-               // voiceFile.file,
-               // subtitleFile.file
-          //  );
+            const video = await ffmpeg.render(
+                images.files,
+                voiceFile.file,
+                subtitleFile.file
+            );
 
-           // if (!video.success) {
-              //  return video;
-  // }
+            if (!video.success) {
+                return video;
+            }
 
             logger.info("AI Video Created Successfully");
 
@@ -84,9 +86,9 @@ class VideoService {
 
                 voice: voiceFile.file,
 
-            
+                video: video.file,
 
-                status: "ASSETS_CREATED"
+                status: "COMPLETED"
 
             };
 

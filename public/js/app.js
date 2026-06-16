@@ -1,66 +1,158 @@
-console.log("✅ app.js fully loaded");
+console.log("✅ app.js loaded");
 
-document.getElementById("status").innerHTML = "🟢 Server Online";
-
-// Main Generate Function
 async function generate() {
-    console.log("🚀 === BUTTON CLICKED ===");
 
-    const topicField = document.getElementById("topic");
-    const topic = topicField ? topicField.value.trim() : "";
+    const topic = document.getElementById("topic").value.trim();
 
     if (!topic) {
-        alert("অনুগ্রহ করে টপিক লিখুন!");
+        alert("Please enter a topic!");
         return;
     }
 
+    const btn = document.getElementById("generateBtn");
     const status = document.getElementById("status");
-    const result = document.getElementById("result");
-    const button = document.querySelector("button");
 
-    if (button) button.disabled = true;
-    if (button) button.innerHTML = "⏳ প্রসেস চলছে...";
+    btn.disabled = true;
+    btn.innerHTML = "⏳ Generating...";
 
-    status.innerHTML = `⏳ "${topic}" এর জন্য ভিডিও তৈরি হচ্ছে... <br>(১-২ মিনিট লাগবে)`;
-    result.innerHTML = "";
+    status.innerHTML = "⏳ Creating AI Video...";
+
+    document.getElementById("topicBox").innerHTML = "";
+    document.getElementById("scriptBox").innerHTML = "";
+    document.getElementById("sceneBox").innerHTML = "";
+    document.getElementById("imageBox").innerHTML = "";
+    document.getElementById("result").innerHTML = "";
+
+    document.getElementById("voicePlayer").style.display = "none";
+    document.getElementById("videoPlayer").style.display = "none";
+    document.getElementById("downloadVideo").style.display = "none";
 
     try {
-        console.log("📤 Sending POST request...");
 
         const response = await fetch("/api/automation/run", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ topic: topic })
+            body: JSON.stringify({
+                topic
+            })
         });
 
-        console.log("📥 Response Status:", response.status);
-
         const data = await response.json();
-        console.log("📦 Full Response:", data);
 
-        if (data.success) {
-            status.innerHTML = "✅ সফলভাবে সম্পন্ন হয়েছে!";
-            result.innerHTML = `<pre style="background:#222; color:#0f0; padding:15px; text-align:left; max-height:400px; overflow:auto;">${JSON.stringify(data, null, 2)}</pre>`;
-        } else {
-            status.innerHTML = "❌ ব্যর্থ হয়েছে";
-            result.innerHTML = `<pre style="color:red;">${data.error || "Unknown error"}</pre>`;
+        console.log(data);
+
+        if (!data.success) {
+
+            status.innerHTML = "❌ Failed";
+
+            document.getElementById("result").textContent =
+                data.error || "Unknown Error";
+
+            return;
         }
 
-    } catch (err) {
-        console.error("❌ CATCH ERROR:", err);
-        status.innerHTML = "❌ এরর হয়েছে (Console দেখুন)";
-        result.innerText = err.message;
-    } finally {
-        if (button) {
-            button.disabled = false;
-            button.innerHTML = "Generate AI Video";
+        status.innerHTML = "✅ Video Created Successfully";
+
+        // Topic
+        document.getElementById("topicBox").innerHTML =
+            data.topic || "";
+
+        // Script
+        document.getElementById("scriptBox").textContent =
+            data.script || "";
+
+        // Scenes
+        const sceneBox = document.getElementById("sceneBox");
+
+        if (Array.isArray(data.scenes)) {
+
+            data.scenes.forEach((scene, index) => {
+
+                const div = document.createElement("div");
+
+                div.style.marginBottom = "10px";
+
+                div.innerHTML =
+                    `<b>Scene ${index + 1}</b><br>${scene}`;
+
+                sceneBox.appendChild(div);
+
+            });
+
         }
+
+        // Images
+        const imageBox = document.getElementById("imageBox");
+
+        if (Array.isArray(data.images)) {
+
+            data.images.forEach((img) => {
+
+                const image = document.createElement("img");
+
+                image.src = img;
+
+                image.style.width = "180px";
+                image.style.margin = "10px";
+                image.style.borderRadius = "10px";
+
+                imageBox.appendChild(image);
+
+            });
+
+        }
+
+        // Voice
+        if (data.voice) {
+
+            const player = document.getElementById("voicePlayer");
+
+            player.src = data.voice;
+
+            player.style.display = "block";
+
+        }
+
+        // Video
+        if (data.video) {
+
+            const video = document.getElementById("videoPlayer");
+
+            video.src = data.video;
+
+            video.style.display = "block";
+
+            const download = document.getElementById("downloadVideo");
+
+            download.href = data.video;
+
+            download.style.display = "inline-block";
+
+        }
+
+        document.getElementById("result").textContent =
+            JSON.stringify(data, null, 2);
+
     }
+
+    catch (err) {
+
+        console.error(err);
+
+        status.innerHTML = "❌ " + err.message;
+
+    }
+
+    finally {
+
+        btn.disabled = false;
+
+        btn.innerHTML = "🚀 Generate AI Video";
+
+    }
+
 }
 
-// Make it global
 window.generate = generate;
-
-console.log("✅ generate() function is ready");

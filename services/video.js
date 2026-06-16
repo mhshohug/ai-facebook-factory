@@ -22,9 +22,7 @@ class VideoService {
             }
 
             // 2. Generate Scenes
-            const scenes = await image.generateScenes(
-                script.text
-            );
+            const scenes = await image.generateScenes(script.text);
 
             if (!scenes.success) {
                 return scenes;
@@ -80,13 +78,16 @@ class VideoService {
 
                 scenes: scenes.scenes,
 
-                images: images.files,
+                // UI-তে দেখানোর জন্য URL
+                images: images.files.map((_, index) =>
+                    `/api/files/images/scene_${index + 1}.png`
+                ),
 
-                subtitle: subtitleFile.file,
+                subtitle: "/api/files/subtitle/subtitle.srt",
 
-                voice: voiceFile.file,
+                voice: "/api/files/voice/voice.mp3",
 
-                video: video.file,
+                video: "/api/files/video/final.mp4",
 
                 status: "COMPLETED"
 

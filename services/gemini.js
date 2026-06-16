@@ -9,9 +9,8 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// সবচেয়ে নিরাপদ মডেল (যেটা বেশিরভাগ নতুন কী তে কাজ করে)
 const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-exp"   // ← এটা ট্রাই করো
+    model: "gemini-2.5-flash"   // তোমার আগের মডেল
 });
 
 class GeminiService {
@@ -21,17 +20,19 @@ class GeminiService {
             const prompt = `
 তুমি একজন পেশাদার বাংলা ভিডিও স্ক্রিপ্ট রাইটার।
 
-বিষয়: ${topic}
+বিষয়:
+${topic}
 
 নিয়ম:
 - শুধুমাত্র বাংলা ভাষায় লিখবে।
-- ১ মিনিটের ভিডিওর জন্য সংক্ষিপ্ত স্ক্রিপ্ট লিখবে।
-- শুরুতে আকর্ষণীয় Hook।
-- শেষে Call To Action।
-- কোনো Markdown ব্যবহার করবে না।
+- ১-২ মিনিটের ভিডিওর জন্য লিখবে।
+- শুরুতে আকর্ষণীয় Hook থাকবে।
+- শেষে Call To Action থাকবে।
+- Markdown ব্যবহার করবে না।
 `;
 
             const result = await model.generateContent(prompt);
+
             const text = result.response.text();
 
             return {

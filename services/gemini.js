@@ -9,15 +9,13 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// আরও স্থিতিশীল মডেল ব্যবহার করা হচ্ছে
+// সঠিক মডেল নাম (latest)
 const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash"
-    // model: "gemini-1.5-flash-latest"  ← চাইলে এটাও ট্রাই করতে পারো
+    model: "gemini-1.5-flash-latest"   // ← এটা ব্যবহার করো
 });
 
 class GeminiService {
 
-    // AI Video Script
     async generateScript(topic) {
         try {
             const prompt = `
@@ -50,7 +48,6 @@ class GeminiService {
         }
     }
 
-    // Generic AI Generate
     async generate(prompt) {
         try {
             const result = await model.generateContent(prompt);

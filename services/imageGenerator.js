@@ -31,7 +31,7 @@ class ImageGenerator {
 
             const response = await axios.post(
 
-                `https://api-inference.huggingface.co/models/${MODEL}`,
+                `https://router.huggingface.co/models/...}`,
 
                 {
                     inputs: prompt

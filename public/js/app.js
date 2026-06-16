@@ -1,7 +1,10 @@
-console.log("✅ app.js LOADED");
+console.log("✅ app.js loaded");
 
+document.getElementById("status").innerHTML = "🟢 Server Online";
+
+// Simple Generate Function
 async function generate() {
-    console.log("🚀 BUTTON CLICKED!");
+    console.log("🚀 Generate button clicked");
 
     const topic = document.getElementById("topic").value.trim();
     if (!topic) {
@@ -12,36 +15,31 @@ async function generate() {
     const status = document.getElementById("status");
     const result = document.getElementById("result");
 
-    status.innerHTML = "⏳ প্রসেস চলছে...";
+    status.innerHTML = "⏳ প্রসেস চলছে... (১-২ মিনিট লাগবে)";
     result.innerHTML = "";
 
     try {
-        console.log("📤 Fetching /api/automation/run");
-
         const res = await fetch("/api/automation/run", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ topic })
+            body: JSON.stringify({ topic: topic })
         });
 
-        console.log("📥 Response status:", res.status);
-
         const data = await res.json();
-        console.log("📦 Response data:", data);
 
         if (data.success) {
-            status.innerHTML = "✅ সফল!";
-            result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            status.innerHTML = "✅ সফল হয়েছে!";
+            result.innerHTML = `<pre style="background:#222;padding:10px;">${JSON.stringify(data, null, 2)}</pre>`;
         } else {
-            status.innerHTML = "❌ Error";
-            result.innerText = data.error || "Failed";
+            status.innerHTML = "❌ ব্যর্থ হয়েছে";
+            result.innerText = data.error || "Error";
         }
     } catch (err) {
-        console.error("❌ FETCH ERROR:", err);
-        status.innerHTML = "❌ Fetch Error দেখুন Console";
-        result.innerText = err.message;
+        console.error(err);
+        status.innerHTML = "❌ Error: " + err.message;
     }
 }
 
 window.generate = generate;
-console.log("✅ generate() function registered");
+
+console.log("✅ Everything ready");

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Facebook Factory</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🤖 AI Facebook Factory</h1>
+
+    <p id="status">
+        🟢 Server Ready
+    </p>
+
+    <div class="card">
+
+        <input
+            type="text"
+            id="topic"
+            placeholder="Enter Video Topic (Example: Bangladesh, AI, Dhaka...)"
+        >
+
+        <button
+            id="generateBtn"
+            onclick="generate()">
+
+            🚀 Generate AI Video
+
+        </button>
+
+    </div>
+
+    <div class="card">
+
+        <h2>📌 Topic</h2>
+
+        <div id="topicBox">
+            Waiting...
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>📝 Script</h2>
+
+        <pre id="scriptBox"></pre>
+
+    </div>
+
+    <div class="card">
+
+        <h2>🎨 Scene Prompts</h2>
+
+        <div id="sceneBox"></div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>🖼 Generated Images</h2>
+
+        <div id="imageBox"></div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>🎤 Voice</h2>
+
+        <audio
+            id="voicePlayer"
+            controls
+            style="display:none;width:100%;">
+
+        </audio>
+
+    </div>
+
+    <div class="card">
+
+        <h2>🎬 Final Video</h2>
+
+        <video
+            id="videoPlayer"
+            controls
+            style="display:none;width:100%;max-height:500px;">
+
+        </video>
+
+        <br><br>
+
+        <a
+            id="downloadVideo"
+            style="display:none;"
+            download>
+
+            ⬇ Download Video
+
+        </a>
+
+    </div>
+
+    <div class="card">
+
+        <h2>📄 Raw API Response</h2>
+
+        <pre id="result"></pre>
+
+    </div>
+
+</div>
+
+<script src="/js/app.js"></script>
+
+</body>
+
+</html>

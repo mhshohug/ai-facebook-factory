@@ -1,73 +1,47 @@
-// ==================== DEBUG VERSION ====================
-console.log("✅ app.js loaded successfully");
+console.log("✅ app.js LOADED");
 
 async function generate() {
-    console.log("🚀 Generate button clicked!");
+    console.log("🚀 BUTTON CLICKED!");
 
     const topic = document.getElementById("topic").value.trim();
     if (!topic) {
-        alert("অনুগ্রহ করে একটি টপিক লিখুন");
+        alert("টপিক লিখুন");
         return;
     }
 
     const status = document.getElementById("status");
     const result = document.getElementById("result");
-    const button = document.querySelector("button");
 
-    if (button) button.disabled = true;
-
-    status.innerHTML = "⏳ প্রসেস চলছে... (১-২ মিনিট লাগবে)";
+    status.innerHTML = "⏳ প্রসেস চলছে...";
     result.innerHTML = "";
 
     try {
-        console.log("📡 Sending request to /api/automation/run with topic:", topic);
+        console.log("📤 Fetching /api/automation/run");
 
         const res = await fetch("/api/automation/run", {
             method: "POST",
-            headers: { 
-                "Content-Type": "application/json" 
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ topic })
         });
 
-        console.log("📡 Response status:", res.status);
+        console.log("📥 Response status:", res.status);
 
         const data = await res.json();
-        console.log("📦 Full response data:", data);
+        console.log("📦 Response data:", data);
 
         if (data.success) {
-            status.innerHTML = "✅ সফলভাবে সম্পন্ন হয়েছে!";
-            result.innerHTML = `<pre style="background:#222; color:#0f0; padding:15px; text-align:left;">${JSON.stringify(data, null, 2)}</pre>`;
+            status.innerHTML = "✅ সফল!";
+            result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
         } else {
-            status.innerHTML = "❌ ব্যর্থ হয়েছে";
-            result.innerText = data.error || "Unknown error";
+            status.innerHTML = "❌ Error";
+            result.innerText = data.error || "Failed";
         }
-
     } catch (err) {
-        console.error("❌ Fetch Error:", err);
-        status.innerHTML = "❌ এরর হয়েছে - Console দেখুন";
+        console.error("❌ FETCH ERROR:", err);
+        status.innerHTML = "❌ Fetch Error দেখুন Console";
         result.innerText = err.message;
-    } finally {
-        if (button) button.disabled = false;
     }
 }
 
-// Global access
 window.generate = generate;
-
-console.log("✅ generate function registered");
-
-// Server check
-async function checkServer() {
-    try {
-        const res = await fetch("/health");
-        const data = await res.json();
-        document.getElementById("status").innerHTML = "🟢 Server Online";
-        console.log("✅ Server health check passed");
-    } catch (e) {
-        document.getElementById("status").innerHTML = "🔴 Server Offline";
-        console.error("Server health check failed");
-    }
-}
-
-window.onload = checkServer;
+console.log("✅ generate() function registered");

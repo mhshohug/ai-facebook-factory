@@ -9,9 +9,9 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// সবচেয়ে স্থিতিশীল ও পুরানো মডেল (যেটা বেশিরভাগ API Key এ কাজ করে)
+// সবচেয়ে নিরাপদ মডেল (যেটা বেশিরভাগ নতুন কী তে কাজ করে)
 const model = genAI.getGenerativeModel({
-    model: "gemini-pro"
+    model: "gemini-2.0-flash-exp"   // ← এটা ট্রাই করো
 });
 
 class GeminiService {
@@ -25,10 +25,10 @@ class GeminiService {
 
 নিয়ম:
 - শুধুমাত্র বাংলা ভাষায় লিখবে।
-- ১-২ মিনিটের ভিডিওর জন্য স্ক্রিপ্ট লিখবে।
-- শুরুতে আকর্ষণীয় Hook থাকবে।
-- শেষে Call To Action থাকবে।
-- Markdown ব্যবহার করবে না।
+- ১ মিনিটের ভিডিওর জন্য সংক্ষিপ্ত স্ক্রিপ্ট লিখবে।
+- শুরুতে আকর্ষণীয় Hook।
+- শেষে Call To Action।
+- কোনো Markdown ব্যবহার করবে না।
 `;
 
             const result = await model.generateContent(prompt);
